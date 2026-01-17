@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  print-etl-d:
+    build: .
+    container_name: print-etl-d
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - ./scans:/app/scans
+      - ./processed:/app/processed
+      - ./error:/app/error
+      - ./output:/app/output
+      - ./logs:/app/logs # If logging to file
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    restart: unless-stopped

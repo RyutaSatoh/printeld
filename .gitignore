@@ -1,0 +1,28 @@
+# Environments
+.env
+
+# Configs (Private)
+config.yaml
+
+# Data Directories
+scans/
+processed/
+error/
+output/
+categorized_output/
+categories/*
+!categories/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Logs
+*.log
+app.log
+
+# OS
+.DS_Store

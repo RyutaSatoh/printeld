@@ -1,0 +1,62 @@
+system:
+  watch_dir: "./scans"
+  processed_dir: "./processed"
+  error_dir: "./error"
+  gemini_model: "gemini-3-flash-preview"
+  scan_interval_sec: 1.0
+
+profiles:
+  - name: "unified_entry_point"
+    match_pattern: "*"
+    description: >
+      ドキュメントを分析し、分類・整理・データ抽出を同時に行います。
+      今日の日付を参考に、年・月・日を正確に特定してください。
+      
+      【分類ルール】
+      カテゴリ定義に基づいて最適な 'category_folder' を選択してください。
+      
+      【学校予定表の抽出ルール】
+      document_type が school_weekly の場合、通常の授業以外の「特別な持ち物」や「イレギュラーな予定」を 
+      school_details セクションに抽出してください。それ以外の場合は school_details を null にしてください。
+    
+    fields:
+      category_folder:
+        type: "string"
+        description: "保存先フォルダ名。動的に注入されるカテゴリリストから最適なものを選択してください。"
+      topic:
+        type: "string"
+        description: "ファイル名に使用する短いトピック。スペースは含めないこと。"
+      date:
+        type: "string"
+        description: "ファイル名に使用する日付 (YYYYMMDD形式)。"
+      document_type:
+        type: "string"
+        description: "書類の種類 (school_weekly, invoice, receipt, advertisement, other)"
+      
+      school_details:
+        type: "object"
+        description: "学校の週間予定表の場合の詳細データ。それ以外の場合は null にしてください。"
+        properties:
+          schedule_list:
+            type: "list[object]"
+            description: "特別な持ち物や予定がある日のリスト"
+            items:
+              type: "object"
+              description: "特定の日付の情報"
+              properties:
+                date: 
+                  type: "string" 
+                  description: "日付 (YYYY-MM-DD)"
+                special_items: 
+                  type: "list[string]" 
+                  description: "その日だけ必要な特別な持ち物。通常の授業セットは含めない。"
+                irregular_schedule: 
+                  type: "string" 
+                  description: "通常とは異なる下校時刻や行事（13時下校等）。"
+
+    actions:
+      - type: "move_file"
+        base_dir: "./categorized_output"
+        path_template: "{category_folder}/{date}_{topic}{extension}"
+      - type: "save_json"
+        path: "./output/all_data.json"
