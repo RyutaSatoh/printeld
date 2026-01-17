@@ -12,8 +12,12 @@ def setup_logging(level: str = "INFO"):
         level=level,
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
     )
+    # Ensure logs directory exists
+    log_path = Path("logs/app.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
     logger.add(
-        "app.log",
+        log_path,
         rotation="10 MB",
         level="DEBUG",
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
