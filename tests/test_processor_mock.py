@@ -21,7 +21,7 @@ class TestLLMProcessor(unittest.IsolatedAsyncioTestCase):
                 "test_field": FieldDefinition(type="string", description="Test Description")
             }
         )
-        
+
     def setUp(self):
         pass
 
@@ -30,7 +30,7 @@ class TestLLMProcessor(unittest.IsolatedAsyncioTestCase):
         # Setup mocks
         mock_model = MagicMock()
         mock_genai.GenerativeModel.return_value = mock_model
-        
+
         # Mock file upload
         mock_file_ref = MagicMock()
         mock_file_ref.name = "files/123"
@@ -41,7 +41,7 @@ class TestLLMProcessor(unittest.IsolatedAsyncioTestCase):
         # Mock generation response
         mock_response = MagicMock()
         mock_response.text = '{"test_field": "extracted_value"}'
-        
+
         # Async mock for generate_content_async
         future = asyncio.Future()
         future.set_result(mock_response)
@@ -49,7 +49,7 @@ class TestLLMProcessor(unittest.IsolatedAsyncioTestCase):
 
         # Run processor
         processor = LLMProcessor(self.system_config)
-        
+
         # We need to mock path.exists() to return True
         with patch("pathlib.Path.exists", return_value=True):
             result = await processor.process_file(Path("dummy.pdf"), self.profile)
@@ -65,7 +65,7 @@ class TestLLMProcessor(unittest.IsolatedAsyncioTestCase):
         # Setup mocks
         mock_model = MagicMock()
         mock_genai.GenerativeModel.return_value = mock_model
-        
+
         mock_file_ref = MagicMock()
         mock_file_ref.state.name = "ACTIVE"
         mock_genai.upload_file.return_value = mock_file_ref
@@ -74,26 +74,26 @@ class TestLLMProcessor(unittest.IsolatedAsyncioTestCase):
         # Mock generation response: Fail twice then succeed
         bad_response = MagicMock()
         bad_response.text = "Not JSON"
-        
+
         good_response = MagicMock()
         good_response.text = '{"test_field": "retry_success"}'
-        
+
         future1 = asyncio.Future()
         future1.set_result(bad_response)
-        
+
         future2 = asyncio.Future()
         future2.set_result(bad_response)
-        
+
         future3 = asyncio.Future()
         future3.set_result(good_response)
-        
+
         mock_model.generate_content_async.side_effect = [future1, future2, future3]
 
         processor = LLMProcessor(self.system_config)
-        
+
         with patch("pathlib.Path.exists", return_value=True):
             result = await processor.process_file(Path("dummy.pdf"), self.profile)
-            
+
         self.assertEqual(result["test_field"], "retry_success")
         self.assertEqual(mock_model.generate_content_async.call_count, 3)
 

@@ -29,18 +29,18 @@ def load_categories_context(categories_dir: Path) -> str:
         return ""
 
     context_lines = ["以下はカテゴリとその定義です。この定義に基づいて最適なフォルダを選択してください："]
-    
+
     for txt_file in categories_dir.glob("*.txt"):
         if txt_file.name.endswith("~"): # skip backup files
             continue
-            
+
         category_name = txt_file.stem
         try:
             content = txt_file.read_text(encoding="utf-8").strip()
             # If content is empty, use name as keyword
             if not content:
                 content = category_name
-            
+
             # Collapse newlines for cleaner prompt
             content = content.replace("\n", " ").replace("\r", "")
             context_lines.append(f"- 【{category_name}】: {content}")

@@ -19,7 +19,7 @@ def build_json_schema(fields: Dict[str, FieldDefinition]) -> Dict[str, Any]:
         "properties": properties,
         "required": required_fields
     }
-    
+
     return schema
 
 def _map_field_to_schema(field_def: FieldDefinition) -> Dict[str, Any]:
@@ -32,13 +32,13 @@ def _map_field_to_schema(field_def: FieldDefinition) -> Dict[str, Any]:
         if not field_def.properties:
             # Generic object if no properties defined (though Gemini might prefer structure)
             return {"type": "OBJECT", "description": description}
-        
+
         props = {}
         reqs = []
         for prop_name, prop_def in field_def.properties.items():
             props[prop_name] = _map_field_to_schema(prop_def)
             reqs.append(prop_name)
-            
+
         return {
             "type": "OBJECT",
             "description": description,
@@ -54,7 +54,7 @@ def _map_field_to_schema(field_def: FieldDefinition) -> Dict[str, Any]:
         else:
             # Fallback for generic list
             item_schema = {"type": "STRING"}
-            
+
         return {
             "type": "ARRAY",
             "description": description,
@@ -64,7 +64,7 @@ def _map_field_to_schema(field_def: FieldDefinition) -> Dict[str, Any]:
     # Legacy syntax support: list[string], list[object], etc.
     if type_str.startswith("list[") and type_str.endswith("]"):
         inner_type = type_str[5:-1]
-        
+
         # Special case: list[object] with defined properties in parent's 'items'
         if inner_type == "object" and field_def.items:
              return {
@@ -72,7 +72,7 @@ def _map_field_to_schema(field_def: FieldDefinition) -> Dict[str, Any]:
                 "description": description,
                 "items": _map_field_to_schema(field_def.items)
             }
-            
+
         return {
             "type": "ARRAY",
             "description": description,

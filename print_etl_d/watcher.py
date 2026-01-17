@@ -31,12 +31,12 @@ class FileQueueHandler(FileSystemEventHandler):
     def _handle_file_event(self, path_str: str):
         file_path = Path(path_str)
         logger.debug(f"File event detected: {file_path}")
-        
+
         # Check if file matches any profile
         matched_profile = self._match_profile(file_path)
         if matched_profile:
             logger.info(f"File {file_path.name} matches profile '{matched_profile.name}'. Queuing...")
-            
+
             # Put into asyncio queue thread-safely
             self.loop.call_soon_threadsafe(
                 self.queue.put_nowait,
@@ -57,21 +57,21 @@ class WatcherService:
         self.config = config
         self.queue = queue
         self.observer = Observer()
-        
+
     def start(self):
         """Start the directory watcher."""
         loop = asyncio.get_running_loop()
         event_handler = FileQueueHandler(loop, self.queue, self.config)
-        
+
         watch_dir = self.config.system.watch_dir
         if not watch_dir.exists():
             logger.warning(f"Watch directory {watch_dir} does not exist. Creating it.")
             watch_dir.mkdir(parents=True, exist_ok=True)
-            
+
         self.observer.schedule(event_handler, str(watch_dir), recursive=False)
         self.observer.start()
         logger.info(f"Watcher started on {watch_dir}")
-        
+
     def stop(self):
         """Stop the watcher."""
         self.observer.stop()

@@ -11,14 +11,14 @@ profiles:
     description: >
       ドキュメントを分析し、分類・整理・データ抽出を同時に行います。
       今日の日付を参考に、年・月・日を正確に特定してください。
-      
+
       【分類ルール】
       カテゴリ定義に基づいて最適な 'category_folder' を選択してください。
-      
+
       【学校予定表の抽出ルール】
       document_type が school_weekly の場合、通常の授業以外の「特別な持ち物」や「イレギュラーな予定」を 
       school_details セクションに抽出してください。それ以外の場合は school_details を null にしてください。
-    
+
     fields:
       category_folder:
         type: "string"
@@ -32,7 +32,7 @@ profiles:
       document_type:
         type: "string"
         description: "書類の種類 (school_weekly, invoice, receipt, advertisement, other)"
-      
+
       school_details:
         type: "object"
         description: "学校の週間予定表の場合の詳細データ。それ以外の場合は null にしてください。"

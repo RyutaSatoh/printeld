@@ -5,3 +5,4 @@ pyyaml>=6.0
 httpx>=0.24.0
 loguru>=0.7.0
 python-dotenv>=1.0.0
+caldav>=1.0.0

@@ -15,12 +15,18 @@ class FieldDefinition(BaseModel):
 
 class ActionConfig(BaseModel):
     """Configuration for an action to perform after extraction."""
-    type: Literal["webhook", "save_json", "move_file"]
+    type: Literal["webhook", "save_json", "move_file", "add_caldav_event"]
     url: Optional[str] = None
     path: Optional[str] = None
     # For move_file action
     base_dir: Optional[str] = None
     path_template: Optional[str] = None
+    # For add_caldav_event action
+    calendar_url: Optional[str] = None
+    username_env: Optional[str] = None
+    password_env: Optional[str] = None
+    summary_template: Optional[str] = None
+    calendar_map: Optional[Dict[str, str]] = None # e.g. {"りっちゃん": "Ricchan"}
 
 class ProfileConfig(BaseModel):
     """Configuration for a processing profile."""
@@ -57,29 +63,29 @@ def load_config(config_path: str = "config.yaml") -> AppConfig:
     try:
         with open(path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
-        
+
         config = AppConfig(**data)
-        
+
         # Ensure directories exist
         config.system.watch_dir.mkdir(parents=True, exist_ok=True)
         config.system.processed_dir.mkdir(parents=True, exist_ok=True)
         config.system.error_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Inject dynamic categories if available
         # Categories are now in the project root
         categories_dir = Path("categories")
         categories_context = load_categories_context(categories_dir)
-        
+
         if categories_context:
             for profile in config.profiles:
                 if "category_folder" in profile.fields:
                     original_desc = profile.fields["category_folder"].description
                     profile.fields["category_folder"].description = f"{original_desc}\n\n{categories_context}"
                     logger.info(f"Injected category definitions into profile '{profile.name}'")
-        
+
         logger.info(f"Configuration loaded successfully from {config_path}")
         return config
-        
+
     except yaml.YAMLError as e:
         logger.error(f"Error parsing YAML file: {e}")
         raise

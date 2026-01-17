@@ -40,5 +40,33 @@ class TestDispatcher(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(len(content), 2)
             self.assertEqual(content[1], data2)
 
+    async def test_move_file_copy(self):
+        # Setup source file
+        source_file = self.test_dir / "source.pdf"
+        source_file.write_text("fake pdf content")
+        
+        dest_dir = self.test_dir / "dest"
+        action = ActionConfig(
+            type="move_file",
+            base_dir=str(dest_dir),
+            path_template="{category}/{date}_{topic}{extension}"
+        )
+        
+        data = {
+            "category": "cat1",
+            "date": "20260120",
+            "topic": "mytopic"
+        }
+        
+        # Dispatch
+        await self.dispatcher.dispatch([action], data, source_file)
+        
+        # Verify
+        expected_path = dest_dir / "cat1" / "20260120_mytopic.pdf"
+        self.assertTrue(expected_path.exists())
+        self.assertEqual(expected_path.read_text(), "fake pdf content")
+        # Ensure source still exists (it's a copy)
+        self.assertTrue(source_file.exists())
+
 if __name__ == "__main__":
     unittest.main()

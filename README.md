@@ -76,7 +76,7 @@ profiles:
   - name: "school_print"        # プロファイル名
     match_pattern: "*print*.pdf" # 対象ファイルパターン (glob形式)
     description: "学校のプリントから行事情報を抽出する" # LLMへの指示
-    
+
     # 抽出したいフィールド定義
     fields:
       event_date: 
@@ -85,7 +85,7 @@ profiles:
       items:
         type: "list[string]"
         description: "持ち物リスト"
-        
+
     # 実行するアクション
     actions:
       - type: "save_json"
