@@ -4,12 +4,16 @@ import shutil
 import signal
 from pathlib import Path
 from loguru import logger
+from dotenv import load_dotenv
 
 from print_etl_d.config import load_config, AppConfig, ProfileConfig
 from print_etl_d.utils import setup_logging
 from print_etl_d.watcher import WatcherService
 from print_etl_d.processor import LLMProcessor, ProcessorError
 from print_etl_d.dispatcher import Dispatcher
+
+# Load environment variables
+load_dotenv()
 
 async def process_event(
     file_path: Path, 
